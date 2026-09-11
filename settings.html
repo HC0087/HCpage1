@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#18211d">
+  <title>HC 명단 설정</title>
+  <script src="roster.js"></script>
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    :root{--ink:#18211d;--muted:#68736d;--paper:#f3f2ed;--surface:#fff;--line:#d9ddd8;--accent:#087d73;--danger:#bd4b3d}
+    *{box-sizing:border-box}body{margin:0;min-width:320px;min-height:100vh;color:var(--ink);background:var(--paper);font-family:Pretendard,"Noto Sans KR",sans-serif;letter-spacing:0}button,input,select{font:inherit}button{cursor:pointer}
+    header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px clamp(18px,4vw,56px);color:#fff;background:var(--ink)}.brand{display:flex;align-items:center;gap:12px}.mark{display:grid;place-items:center;width:38px;height:38px;border:1px solid #ffffff47;font-family:Georgia,serif;font-weight:800}.brand strong,.brand small{display:block}.brand small{color:#aeb9b3;font-size:12px}.close{border:1px solid #ffffff47;padding:9px 12px;color:#fff;background:transparent;font-size:12px;font-weight:700}
+    main{width:min(900px,calc(100% - 36px));margin:34px auto 60px}.heading{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:20px}h1{margin:0;font-size:clamp(27px,4vw,40px)}.heading p{margin:8px 0 0;color:var(--muted)}.count{flex:none;color:var(--accent);font-weight:800}
+    .toolbar{display:grid;grid-template-columns:minmax(180px,1fr) auto auto;gap:8px;margin-bottom:12px}.search{min-width:0;border:1px solid var(--line);padding:12px 14px;background:#fff;outline:none}.search:focus{border-color:var(--accent)}.button{border:0;padding:12px 16px;font-weight:800}.add{color:#fff;background:var(--accent)}.reset{border:1px solid var(--line);background:transparent}
+    .table{border:1px solid var(--line);background:var(--surface)}.table-head,.member-row{display:grid;grid-template-columns:58px minmax(0,1fr) 110px 72px;align-items:center;gap:12px}.table-head{padding:11px 16px;color:var(--muted);background:#edf0ed;font-size:11px;font-weight:800}.member-row{padding:9px 16px;border-top:1px solid #edf0ed}.member-row:first-child{border-top:0}.number{color:var(--muted);font-size:12px}.name,.score{width:100%;min-width:0;border:1px solid var(--line);padding:10px;background:#fff;outline:none}.name:focus,.score:focus{border-color:var(--accent)}.remove{border:0;padding:9px 8px;color:var(--danger);background:transparent;font-size:12px;font-weight:800}.empty{padding:40px;color:var(--muted);text-align:center}
+    .footer{position:sticky;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:16px;border:1px solid var(--line);border-top:3px solid var(--ink);padding:14px 16px;background:#fff}.status{margin:0;color:var(--muted);font-size:12px}.status.error{color:var(--danger)}.save{min-width:150px;border:0;padding:13px 20px;color:#fff;background:var(--ink);font-weight:800}.locked>header,.locked>main{visibility:hidden}.password-dialog{width:min(380px,calc(100% - 32px));border:0;padding:0;color:var(--ink);background:#fff;box-shadow:0 24px 70px #0005}.password-dialog::backdrop{background:#111}.password-form{padding:24px}.password-form h2{margin:0 0 8px;font-size:20px}.password-form label{display:block;margin:20px 0 7px;font-size:12px;font-weight:800}.password-form input{width:100%;border:1px solid var(--line);padding:12px;outline:none}.password-error{min-height:18px;margin:7px 0;color:var(--danger);font-size:12px}.dialog-actions{display:flex;justify-content:flex-end;gap:8px}.dialog-actions button{border:1px solid var(--line);padding:10px 16px;background:#fff;font-weight:800}.dialog-actions .confirm-password{border-color:var(--ink);color:#fff;background:var(--ink)}
+    @media(max-width:620px){main{width:calc(100% - 24px);margin-top:24px}.heading{align-items:start;flex-direction:column}.toolbar{grid-template-columns:1fr 1fr}.search{grid-column:1/-1}.table-head{display:none}.member-row{grid-template-columns:34px minmax(0,1fr) 76px 48px;gap:7px;padding:9px}.remove{padding:9px 2px}.footer{align-items:stretch;flex-direction:column}.save{width:100%}}
+  </style>
+</head>
+<body>
+  <header><div class="brand"><div class="mark">HC</div><div><strong>Roster Settings</strong><small>Names &amp; scores</small></div></div><button class="close" id="closeButton" type="button">창 닫기</button></header>
+  <main>
+    <div class="heading"><div><h1>구성원 명단</h1><p>이름과 점수를 관리합니다.</p></div><div class="count" id="memberCount">0명</div></div>
+    <div class="toolbar"><input class="search" id="search" type="search" placeholder="이름 검색"><button class="button reset" id="resetButton" type="button">기본값 복원</button><button class="button add" id="addButton" type="button">구성원 추가</button></div>
+    <div class="table"><div class="table-head"><span>번호</span><span>이름</span><span>점수</span><span></span></div><div id="memberList"></div></div>
+    <div class="footer"><p class="status" id="status">변경 내용은 이 브라우저에 저장됩니다.</p><button class="save" id="saveButton" type="button">설정 저장</button></div>
+  </main>
+  <dialog class="password-dialog" id="authDialog"><form class="password-form" id="authForm"><h2>관리자 확인</h2><label for="adminPassword">비밀번호</label><input id="adminPassword" type="password" inputmode="numeric" autocomplete="current-password" required><p class="password-error" id="authError" aria-live="polite"></p><div class="dialog-actions"><button id="backButton" type="button">돌아가기</button><button class="confirm-password" type="submit">확인</button></div></form></dialog>
+  <script>
+    const list=document.getElementById('memberList'),search=document.getElementById('search'),status=document.getElementById('status');
+    const authorized=sessionStorage.getItem('hc-admin-auth')==='allowed';sessionStorage.removeItem('hc-admin-auth');if(!authorized){document.body.classList.add('locked');document.getElementById('authDialog').showModal();document.getElementById('adminPassword').focus()}document.getElementById('authForm').onsubmit=event=>{event.preventDefault();if(document.getElementById('adminPassword').value!=='1234'){document.getElementById('authError').textContent='비밀번호가 올바르지 않습니다.';document.getElementById('adminPassword').select();return}document.body.classList.remove('locked');document.getElementById('authDialog').close()};document.getElementById('backButton').onclick=()=>location.replace('index.html');
+    function activeStore(){try{return window.opener?.HCRoster||HCRoster}catch{return HCRoster}}
+    let members=activeStore().load().map((person,index)=>({...person,id:`member-${index}-${Date.now()}`}));
+    const escapeHtml=value=>String(value).replace(/[&<>'"]/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[character]));
+
+    function render(){const query=search.value.trim().toLocaleLowerCase(),visible=members.filter(person=>person.name.toLocaleLowerCase().includes(query));document.getElementById('memberCount').textContent=`${members.length}명`;list.innerHTML=visible.length?visible.map((person,index)=>`<div class="member-row" data-id="${person.id}"><span class="number">${index+1}</span><input class="name" value="${escapeHtml(person.name)}" aria-label="구성원 이름"><select class="score" aria-label="점수">${[1,2,3,4,5].map(score=>`<option value="${score}" ${score===person.score?'selected':''}>${score}점</option>`).join('')}</select><button class="remove" type="button">삭제</button></div>`).join(''):'<div class="empty">검색 결과가 없습니다.</div>'}
+    function setStatus(message,error=false){status.textContent=message;status.classList.toggle('error',error)}
+    function syncRow(row){const person=members.find(item=>item.id===row.dataset.id);if(!person)return;person.name=row.querySelector('.name').value;person.score=Number(row.querySelector('.score').value)}
+    list.addEventListener('input',event=>{const row=event.target.closest('.member-row');if(row)syncRow(row);setStatus('저장하지 않은 변경 내용이 있습니다.')});
+    list.addEventListener('click',event=>{if(!event.target.classList.contains('remove'))return;const row=event.target.closest('.member-row');members=members.filter(person=>person.id!==row.dataset.id);render();setStatus('저장하지 않은 변경 내용이 있습니다.')});
+    search.addEventListener('input',render);
+    document.getElementById('addButton').addEventListener('click',()=>{const person={id:`member-${crypto.randomUUID?.()||Date.now()}`,name:'',score:3};members.push(person);search.value='';render();const input=list.querySelector(`[data-id="${person.id}"] .name`);input?.focus();setStatus('새 구성원의 이름과 점수를 입력해 주세요.')});
+    document.getElementById('resetButton').addEventListener('click',()=>{if(!confirm('명단을 최초 등급표로 되돌릴까요?'))return;members=HCRoster.defaults.map((person,index)=>({...person,id:`default-${index}-${Date.now()}`}));search.value='';render();setStatus('기본 명단을 불러왔습니다. 저장 버튼을 눌러 적용하세요.')});
+    document.getElementById('saveButton').addEventListener('click',()=>{document.querySelectorAll('.member-row').forEach(syncRow);const entries=members.map(({name,score})=>({name:name.trim(),score})),valid=entries.filter(person=>person.name),keys=valid.map(person=>person.name.toLocaleLowerCase());if(valid.length!==entries.length)return setStatus('이름이 비어 있는 구성원을 확인해 주세요.',true);if(new Set(keys).size!==keys.length)return setStatus('중복된 이름이 있습니다.',true);try{const saved=HCRoster.save(entries),openerStore=activeStore();if(openerStore!==HCRoster)openerStore.save(saved);members=saved.map((person,index)=>({...person,id:`saved-${index}-${Date.now()}`}));render();setStatus('저장했습니다. 메인 화면 명단에도 반영됩니다.');try{if(window.opener&&!window.opener.closed)window.opener.location.reload()}catch{}}catch(error){setStatus(error.message,true)}});
+    document.getElementById('closeButton').addEventListener('click',()=>window.close());
+    render();
+  </script>
+</body>
+</html>
